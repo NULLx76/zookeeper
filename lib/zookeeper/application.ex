@@ -4,12 +4,16 @@ defmodule Zookeeper.Application do
   @moduledoc false
 
   use Application
+  alias Zookeeper.Discord
 
   @impl true
   def start(_type, _args) do
     children = [
-      {Plug.Cowboy, scheme: :http, plug: Zookeeper.Router, port: 8085}
+      {Plug.Cowboy, scheme: :http, plug: Zookeeper.Router, port: 8085},
+      {Finch, name: MyFinch}
     ]
+
+    # Discord.add_slash_command!(APP_ID, TOKEN, GUILD_ID)
 
     # See https://hexdocs.pm/elixir/Supervisor.html
     # for other strategies and supported options
