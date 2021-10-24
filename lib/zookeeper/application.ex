@@ -4,16 +4,32 @@ defmodule Zookeeper.Application do
   @moduledoc false
 
   use Application
-  alias Zookeeper.Discord
 
   @impl true
   def start(_type, _args) do
     children = [
-      {Plug.Cowboy, scheme: :http, plug: Zookeeper.Router, port: 8085},
-      {Finch, name: MyFinch}
+      {Plug.Cowboy, scheme: :http, plug: Zookeeper.Discord.Router, port: 8085},
+      {Finch, name: MyFinch},
+      {Zookeeper.Twitter.TweetStore, 0},
+      {Task.Supervisor, name: Zookeeper.TaskSupervisor},
+      {Zookeeper.Discord.RegisterCommands,
+       app_id: Application.fetch_env!(:zookeeper, :discord_app_id),
+       token: Application.fetch_env!(:zookeeper, :discord_token),
+       guilds: Application.fetch_env!(:zookeeper, :discord_guilds)}
     ]
 
-    # Discord.add_slash_command!(APP_ID, TOKEN, GUILD_ID)
+    # Don't run TweetFetcher during tests
+    children =
+      if Mix.env() == :test do
+        children
+      else
+        children ++
+          [
+            {Zookeeper.Twitter.TweetFetcher,
+             token: Application.fetch_env!(:zookeeper, :twitter_token),
+             accounts: Application.fetch_env!(:zookeeper, :twitter_accounts)}
+          ]
+      end
 
     # See https://hexdocs.pm/elixir/Supervisor.html
     # for other strategies and supported options

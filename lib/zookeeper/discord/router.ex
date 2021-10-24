@@ -1,8 +1,9 @@
-defmodule Zookeeper.Router do
+defmodule Zookeeper.Discord.Router do
   use Plug.Router
   use Plug.Debugger
   require Logger
   alias Zookeeper.Discord
+  alias Zookeeper.Discord.Commands
 
   plug(Plug.Logger, log: :debug)
 
@@ -14,10 +15,9 @@ defmodule Zookeeper.Router do
     send_resp(conn, 200, "world")
   end
 
-  @pk "7B4C72BEF63E5742543EE008434AAAFC965BF599650CDEA671D5DD57B3A45163" |> Base.decode16!()
-
   post "/discord" do
-    with {:ok, conn, json} <- Discord.verify_signature(conn, @pk) do
+    pk = Application.fetch_env!(:zookeeper, :discord_public_key)
+    with {:ok, conn, json} <- Discord.verify_signature(conn, pk) do
       case Map.fetch!(json, "type") do
         # Ping
         1 ->
@@ -27,19 +27,13 @@ defmodule Zookeeper.Router do
 
         # Slash Command
         2 ->
+          {:ok, msg} = Commands.blep()
+
           conn
           |> put_resp_content_type("application/json")
           |> send_resp(
             200,
-            Poison.encode!(%{
-              "type" => 4,
-              "data" => %{
-                "tts" => false,
-                "content" => "Hello #{get_in(json, ["member", "nick"])}!",
-                "embeds" => [],
-                "allowed_mentions" => %{"parse" => []}
-              }
-            })
+            Poison.encode!(msg)
           )
 
         _ ->

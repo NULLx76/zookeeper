@@ -25,4 +25,9 @@ zookeeper-*.tar
 # Temporary files, for example, from tests.
 /tmp/
 
+# Language server
 .elixir-ls
+
+# Secret vars
+secret.exs
+.env

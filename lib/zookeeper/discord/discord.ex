@@ -1,8 +1,6 @@
 defmodule Zookeeper.Discord do
   import Plug.Conn
 
-  # @root "discord.com"
-
   @spec verify_signature(Plug.Conn.t(), binary()) ::
           {:error, 400 | 401, binary()} | {:ok, Plug.Conn.t(), map()}
   def verify_signature(conn, pk) do
@@ -26,7 +24,7 @@ defmodule Zookeeper.Discord do
     request = %{
       "name" => "blep",
       "type" => 1,
-      "description" => "blep"
+      "description" => "Show a random cute animal picture"
     }
 
     {:ok, resp} =

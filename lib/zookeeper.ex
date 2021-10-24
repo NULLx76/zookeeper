@@ -1,18 +1,9 @@
 defmodule Zookeeper do
-  @moduledoc """
-  Documentation for `Zookeeper`.
-  """
+  alias Zookeeper.Twitter
 
-  @doc """
-  Hello world.
-
-  ## Examples
-
-      iex> Zookeeper.hello()
-      :world
-
-  """
-  def hello do
-    :world
+  def get_pic do
+    token = Application.fetch_env!(:zookeeper, :twitter_token)
+    id = Twitter.TweetStore.get_random()
+    Twitter.get_tweet_with_image(token, id) |> IO.inspect()
   end
 end
