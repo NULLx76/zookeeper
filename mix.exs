@@ -22,12 +22,12 @@ defmodule Zookeeper.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-        {:plug_cowboy, "~> 2.5.2"},
-        {:poison, "~> 5.0"},
-        {:enacl, "~> 1.2.1"},
-        {:castore, "~> 0.1"},
-        {:finch, "~> 0.9"},
-        {:ex_const, "~> 0.2"}
+      {:plug_cowboy, "~> 2.5.2"},
+      {:poison, "~> 5.0"},
+      {:enacl, "~> 1.2.1"},
+      {:castore, "~> 0.1"},
+      {:finch, "~> 0.9"},
+      {:ex_const, "~> 0.2"}
     ]
   end
 end

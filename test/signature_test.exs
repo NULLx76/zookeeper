@@ -10,11 +10,11 @@ defmodule ZookeeperTest.SignatureTest do
 
     signature = :enacl.sign_detached(timestamp <> msg, sk) |> Base.encode16()
 
-
     # Create a test connection
-    conn = conn(:post, "/discord", msg)
-    |> put_req_header("x-signature-ed25519", signature)
-    |> put_req_header("x-signature-timestamp", timestamp)
+    conn =
+      conn(:post, "/discord", msg)
+      |> put_req_header("x-signature-ed25519", signature)
+      |> put_req_header("x-signature-timestamp", timestamp)
 
     # Invoke the plug
     {:ok, conn, _json} = Zookeeper.Discord.verify_signature(conn, pk)
@@ -31,11 +31,11 @@ defmodule ZookeeperTest.SignatureTest do
 
     signature = :enacl.sign_detached(timestamp <> msg, sk) |> Base.encode16()
 
-
     # Create a test connection
-    conn = conn(:post, "/discord", ~s({"type": 1, "bogus": "data"}))
-    |> put_req_header("x-signature-ed25519", signature)
-    |> put_req_header("x-signature-timestamp", timestamp)
+    conn =
+      conn(:post, "/discord", ~s({"type": 1, "bogus": "data"}))
+      |> put_req_header("x-signature-ed25519", signature)
+      |> put_req_header("x-signature-timestamp", timestamp)
 
     # Invoke the plug
     {:error, 401, _} = Zookeeper.Discord.verify_signature(conn, pk)
@@ -49,11 +49,11 @@ defmodule ZookeeperTest.SignatureTest do
 
     signature = :enacl.sign_detached(timestamp <> msg, sk) |> Base.encode16()
 
-
     # Create a test connection
-    conn = conn(:post, "/discord", msg)
-    |> put_req_header("x-signature-ed25519", signature)
-    |> put_req_header("x-signature-timestamp", timestamp)
+    conn =
+      conn(:post, "/discord", msg)
+      |> put_req_header("x-signature-ed25519", signature)
+      |> put_req_header("x-signature-timestamp", timestamp)
 
     # Invoke the plug
     {:error, 400, _} = Zookeeper.Discord.verify_signature(conn, pk)
