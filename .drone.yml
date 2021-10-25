@@ -1,0 +1,55 @@
+---
+kind: pipeline
+type: kubernetes
+name: default
+steps:
+- name: restore cache
+  image: plugins/s3-cache
+  settings:
+    pull: true
+    endpoint: http://192.168.0.112:9000
+    root: drone
+    restore: true
+    access_key:
+      from_secret: MINIO_ACCESS_KEY
+    secret_key:
+      from_secret: MINIO_SECRET_KEY
+
+- name: test
+  image: registry.xirion.net/library/zookeeper-builder
+  commands:
+    - mix local.rebar --force
+    - mix local.hex --force
+    - mix deps.get
+    - mix test
+
+- name: rebuild cache
+  image: plugins/s3-cache
+  settings:
+    pull: true
+    root: drone
+    endpoint: http://192.168.0.112:9000
+    access_key:
+      from_secret: MINIO_ACCESS_KEY
+    secret_key:
+      from_secret: MINIO_SECRET_KEY
+    rebuild: true
+    mount:
+      - deps
+      - _build
+    when:
+      event: push
+
+- name: kaniko
+  image: ghcr.io/finitum/drone-kaniko:edge
+  when:
+    branch: [main]
+  settings:
+    cache: true
+    username:
+      from_secret: REGISTRY_USER
+    password:
+      from_secret: REGISTRY_PASSWORD
+    registry: registry.xirion.net
+    repo: library/zookeeper
+    tags: latest

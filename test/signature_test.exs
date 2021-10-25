@@ -17,7 +17,7 @@ defmodule ZookeeperTest.SignatureTest do
       |> put_req_header("x-signature-timestamp", timestamp)
 
     # Invoke the plug
-    {:ok, conn, _json} = Zookeeper.Discord.verify_signature(conn, pk)
+    {:ok, conn, _json} = Zookeeper.Discord.verify_signature(conn, pk |> Base.encode16())
 
     assert conn.status != 401
     assert conn.status != 400
@@ -38,7 +38,7 @@ defmodule ZookeeperTest.SignatureTest do
       |> put_req_header("x-signature-timestamp", timestamp)
 
     # Invoke the plug
-    {:error, 401, _} = Zookeeper.Discord.verify_signature(conn, pk)
+    {:error, 401, _} = Zookeeper.Discord.verify_signature(conn, pk |> Base.encode16())
   end
 
   test "test invalid json" do

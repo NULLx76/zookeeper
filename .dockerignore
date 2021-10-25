@@ -1,0 +1,12 @@
+/_build/
+/cover/
+/deps/
+/doc/
+/.fetch
+erl_crash.dump
+*.ez
+zookeeper-*.tar
+/tmp/
+.elixir-ls
+secret.exs
+.env
