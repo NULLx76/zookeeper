@@ -4,6 +4,6 @@ defmodule Zookeeper do
   def get_pic do
     token = Application.fetch_env!(:zookeeper, :twitter_token)
     id = Twitter.TweetStore.get_random()
-    Twitter.get_tweet_with_image(token, id) |> IO.inspect()
+    Twitter.get_tweet_with_image(token, id)
   end
 end

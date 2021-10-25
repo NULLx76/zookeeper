@@ -17,6 +17,7 @@ defmodule Zookeeper.Discord.Router do
 
   post "/discord" do
     pk = Application.fetch_env!(:zookeeper, :discord_public_key)
+
     with {:ok, conn, json} <- Discord.verify_signature(conn, pk) do
       case Map.fetch!(json, "type") do
         # Ping
@@ -27,14 +28,11 @@ defmodule Zookeeper.Discord.Router do
 
         # Slash Command
         2 ->
-          {:ok, msg} = Commands.blep()
+          {:ok, msg} = Commands.run_command(json)
 
           conn
           |> put_resp_content_type("application/json")
-          |> send_resp(
-            200,
-            Poison.encode!(msg)
-          )
+          |> send_resp(200, Poison.encode!(msg))
 
         _ ->
           send_resp(conn, 400, "Invalid Request")

@@ -11,33 +11,42 @@ defmodule Zookeeper.Twitter do
       ])
       |> Finch.request(MyFinch)
 
-    Map.fetch!(Poison.decode!(resp.body), "data")
+    Poison.decode!(resp.body)
+    |> Map.fetch!("data")
   end
 
-  def retrieve_all_tweet_ids(token, id, max_results \\ 100, pagination \\ nil, accum \\ []) do
-    url = "#{@root}/users/#{id}/tweets?exclude=retweets&max_results=#{max_results}"
-    url = if is_binary(pagination), do: url <> "&pagination_token=" <> pagination, else: url
+  defp do_call!(token, url) do
+    {:ok, resp} =
+      Finch.build(:get, url, [{"Authorization", "Bearer " <> token}])
+      |> Finch.request(MyFinch)
 
-    with {:ok, resp} <-
-           Finch.build(:get, url, [
-             {"Authorization", "Bearer " <> token}
-           ])
-           |> Finch.request(MyFinch),
-         {:ok, body} <- Poison.decode(resp.body) do
-      ids =
-        body["data"]
-        |> Enum.reduce([], fn %{"id" => id}, acc -> [id | acc] end)
+    Poison.decode!(resp.body)
+  end
 
-      case Map.fetch(body["meta"], "next_token") do
-        {:ok, next_token} ->
-          retrieve_all_tweet_ids(token, id, max_results, next_token, ids ++ accum)
+  defp reduce_tweets(body) do
+    Enum.reduce(body["data"], [], fn %{"id" => id}, acc -> [id | acc] end)
+  end
 
-        :error ->
-          {:ok, ids ++ accum}
-      end
-    else
-      {:error, exception} -> {:error, exception}
-    end
+  defp build_fetch_tweets_url(user_id, page \\ nil)
+
+  defp build_fetch_tweets_url(user_id, nil),
+    do: "#{@root}/users/#{user_id}/tweets?exclude=retweets&max_results=100"
+
+  defp build_fetch_tweets_url(user_id, page),
+    do:
+      "#{@root}/users/#{user_id}/tweets?exclude=retweets&max_results=100&pagination_token=#{page}"
+
+  defp fetch_tweets!(_, _, nil, accum), do: accum
+
+  defp fetch_tweets!(token, user_id, pagination, accum) do
+    body = do_call!(token, build_fetch_tweets_url(user_id, pagination))
+    accum = accum ++ reduce_tweets(body)
+    fetch_tweets!(token, user_id, Map.get(body["meta"], "next_token"), accum)
+  end
+
+  def retrieve_all_tweet_ids!(token, user_id) do
+    body = do_call!(token, build_fetch_tweets_url(user_id))
+    fetch_tweets!(token, user_id, Map.get(body["meta"], "next_token"), reduce_tweets(body))
   end
 
   def get_tweet_with_image(token, id) do

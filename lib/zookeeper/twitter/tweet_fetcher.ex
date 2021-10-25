@@ -23,8 +23,8 @@ defmodule Zookeeper.Twitter.TweetFetcher do
   end
 
   def populate(token, account) do
-    {:ok, list} = Twitter.retrieve_all_tweet_ids(token, account["id"])
-    TweetStore.put(list)
+    Twitter.retrieve_all_tweet_ids!(token, account["id"])
+    |> TweetStore.put()
 
     IO.puts("Populated TweetStore for #{account["name"]}")
   end

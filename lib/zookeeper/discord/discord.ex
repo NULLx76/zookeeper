@@ -8,7 +8,8 @@ defmodule Zookeeper.Discord do
          [timestamp | _] <- get_req_header(conn, "x-signature-timestamp"),
          {:ok, body, conn} <- read_body(conn),
          {:ok, json} <- Poison.decode(body),
-         {:ok, signature} <- signature |> String.upcase() |> Base.decode16() do
+         {:ok, signature} <- signature |> String.upcase() |> Base.decode16(),
+         {:ok, pk} <- pk |> String.upcase() |> Base.decode16() do
       if :enacl.sign_verify_detached(signature, timestamp <> body, pk) do
         {:ok, conn, json}
       else
@@ -19,23 +20,16 @@ defmodule Zookeeper.Discord do
     end
   end
 
-  @spec add_slash_command!(any, binary, any) :: non_neg_integer()
-  def add_slash_command!(app_id, token, guild_id) do
-    request = %{
-      "name" => "blep",
-      "type" => 1,
-      "description" => "Show a random cute animal picture"
-    }
-
+  def set_slash_commands!(app_id, token, guild_id, def) do
     {:ok, resp} =
       Finch.build(
-        :post,
+        :put,
         "https://discord.com/api/v8/applications/#{app_id}/guilds/#{guild_id}/commands",
         [
           {"content-type", "application/json"},
           {"Authorization", "Bot " <> token}
         ],
-        Poison.encode!(request)
+        Poison.encode!(def)
       )
       |> Finch.request(MyFinch)
 
