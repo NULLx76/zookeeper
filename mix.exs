@@ -14,7 +14,7 @@ defmodule Zookeeper.MixProject do
   # Run "mix help compile.app" to learn about applications.
   def application do
     [
-      extra_applications: [:logger, :cowboy, :plug_cowboy, :poison],
+      extra_applications: [:logger, :cowboy, :plug_cowboy, :poison, :peerage],
       mod: {Zookeeper.Application, []}
     ]
   end
@@ -27,7 +27,8 @@ defmodule Zookeeper.MixProject do
       {:enacl, "~> 1.2.1"},
       {:castore, "~> 0.1"},
       {:finch, "~> 0.9"},
-      {:ex_const, "~> 0.2"}
+      {:ex_const, "~> 0.2"},
+      {:peerage, "~> 1.0.3"}
     ]
   end
 end

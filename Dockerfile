@@ -15,8 +15,8 @@ RUN mkdir -p /opt/release && \
 
 
 # Runner image
-FROM alpine:3 AS runner
-RUN apk add --no-cache openssl ncurses-libs
+FROM docker.io/library/alpine:3 AS runner
+RUN apk add --no-cache openssl ncurses-libs libgcc libstdc++ libsodium
 WORKDIR /app/
 ENV HOME=/app
 RUN chown nobody:nobody /app
