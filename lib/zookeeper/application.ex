@@ -18,9 +18,9 @@ defmodule Zookeeper.Application do
        guilds: Application.fetch_env!(:zookeeper, :discord_guilds)}
     ]
 
-    # Don't run TweetFetcher during tests
+    # Don't run TweetFetcher when disabled (during tests)
     children =
-      if Mix.env() == :test do
+      if Application.fetch_env!(:zookeeper, :start_fetch) do
         children
       else
         children ++
