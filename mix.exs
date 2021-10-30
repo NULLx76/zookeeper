@@ -28,7 +28,7 @@ defmodule Zookeeper.MixProject do
       {:castore, "~> 0.1"},
       {:finch, "~> 0.9"},
       {:ex_const, "~> 0.2"},
-      {:peerage, "~> 1.0.3"}
+      {:peerage, "~> 1.0"},
     ]
   end
 end

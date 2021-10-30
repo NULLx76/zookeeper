@@ -7,6 +7,8 @@ defmodule Zookeeper.Application do
 
   @impl true
   def start(_type, _args) do
+    IO.puts("starting")
+
     children = [
       {Plug.Cowboy, scheme: :http, plug: Zookeeper.Discord.Router, port: 8085},
       {Finch, name: MyFinch},
@@ -20,7 +22,7 @@ defmodule Zookeeper.Application do
 
     # Don't run TweetFetcher when disabled (during tests)
     children =
-      if Application.fetch_env!(:zookeeper, :start_fetch) do
+      if !Application.fetch_env!(:zookeeper, :prod) do
         children
       else
         children ++
